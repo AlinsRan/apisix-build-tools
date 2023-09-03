@@ -10,11 +10,14 @@ jobs:
     resource_class: arm.medium
     environment:
       - PASSWORD: ${{ secrets.PASSWORD }}
+      - TEST_VAR: "hello world"
     steps:
       - checkout
       - run:
           name: echo
           command: |
+            echo ${TEST_VAR}
+            echo ${PASSWORD}
             echo "${PASSWORD}" | grep 1234 && echo pass && exit 0
             exit 1
   build:
