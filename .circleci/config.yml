@@ -214,8 +214,7 @@ workflows:
       - echo
   build-apisix-base:
     when:
-      condition:
-        equal: [ false, << pipeline.parameters.publish_repo_trigger >> ]
+      not: << pipeline.parameters.publish_repo_trigger >>
     jobs:
       - build:
           filters:
@@ -223,8 +222,7 @@ workflows:
               only: master
   build-and-push-apisix-base-dev:
     when:
-      condition:
-        equal: [ false, << pipeline.parameters.publish_repo_trigger >> ]
+      not: << pipeline.parameters.publish_repo_trigger >>
     triggers:
       - schedule:
           cron: "0 0 * * *"
@@ -241,8 +239,7 @@ workflows:
             - build-and-push-apisix-base-dev-x86
   build-mutil-platform-arm64-apckage:
     when:
-      condition:
-        equal: [ false, << pipeline.parameters.publish_repo_trigger >> ]
+      not: << pipeline.parameters.publish_repo_trigger >>
     jobs:
       - build-arm64-package:
           name: debian-bullseye
