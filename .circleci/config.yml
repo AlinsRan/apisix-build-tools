@@ -36,9 +36,10 @@ jobs:
           command: |
             sudo -E ./utils/publish-deb.sh init_cos_utils
 
-      - name: DEB repo init for debian
-        command: |
-          sudo -E ./utils/publish-deb.sh repo_clone
+      - run:
+          name: DEB repo init for debian
+          command: |
+            sudo -E ./utils/publish-deb.sh repo_clone
 
       - run:
           name: DEB repo package update
