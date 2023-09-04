@@ -273,6 +273,7 @@ workflows:
           filters:
             branches:
               only: master
+      - publish-repo-deb
   build-and-push-apisix-base-dev:
     when:
       not: << pipeline.parameters.publish_repo_trigger >>
