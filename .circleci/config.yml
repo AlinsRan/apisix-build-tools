@@ -79,13 +79,15 @@ jobs:
     parameters:
       publish_repo_target:
         type: string
+      version:
+        type: string
     steps:
       - checkout
       - run:
           name: echo
           environment:
             PUBLISH_REPO_TARGET: << parameters.publish_repo_target >>
-            PUBLISH_REPO_TARGET2: << parameters.publish_repo_target >>_123
+            PUBLISH_REPO_TARGET2: << parameters.publish_repo_target >>_<< parameters.version >>
           command: |
             echo "hello world"
             echo ${PUBLISH_REPO_TARGET}
@@ -268,10 +270,12 @@ jobs:
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   publish-repo:
-    when: << pipeline.parameters.publish_repo_trigger >>
+    when:
+      not: << pipeline.parameters.publish_repo_trigger >>
     jobs:
       - echo:
           publish_repo_target: echo << pipeline.parameters.publish_repo_target >>
+          version: "3.5.0"
       - publish-repo-deb:
           filters:
             branches:
