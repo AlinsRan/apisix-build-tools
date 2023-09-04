@@ -269,6 +269,7 @@ workflows:
           filters:
             branches:
               only: master
+          publish_repo_target: echo << parameters.publish_repo_target >>
   build-apisix-base:
     when:
       not: << pipeline.parameters.publish_repo_trigger >>
