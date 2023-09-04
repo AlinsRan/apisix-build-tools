@@ -200,7 +200,10 @@ jobs:
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   echo-run:
-    when: << pipeline.parameters.publish_trigger >>
+    parameters:
+      echo-run:
+        type: boolean
+        default: false
     jobs:
       - echo
   build-apisix-base:
