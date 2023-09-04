@@ -265,6 +265,10 @@ workflows:
     jobs:
       - echo:
           publish_repo_target: echo << parameters.publish_repo_target >>
+      - publish-repo-deb:
+          filters:
+            branches:
+              only: master
   build-apisix-base:
     when:
       not: << pipeline.parameters.publish_repo_trigger >>
@@ -273,7 +277,6 @@ workflows:
           filters:
             branches:
               only: master
-      - publish-repo-deb
   build-and-push-apisix-base-dev:
     when:
       not: << pipeline.parameters.publish_repo_trigger >>
