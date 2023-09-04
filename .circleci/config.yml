@@ -18,19 +18,70 @@ parameters:
     default: ""
 
 jobs:
+  publish-repo-deb:
+    machine:
+      image: ubuntu-2004:202101-01
+    resource_class: arm.medium
+    
+    steps:
+      - run:
+          name: Init basic publish env
+          command: |
+            sudo apt-get update
+            sudo apt install -y gpg ca-certificates
+            sudo pip install coscmd
+            
+      - run:
+          name: DEB repo deps init
+          command: |
+            sudo -E ./utils/publish-deb.sh init_cos_utils
+
+      - name: DEB repo init for debian
+        command: |
+          sudo -E ./utils/publish-deb.sh repo_clone
+
+      - run:
+          name: DEB repo package update
+          command: |
+            DEB_GPG_PRIV_KEY=$(echo $DEB_GPG_PRIV_KEY_BASE64 | base64 -d)
+            echo "${DEB_GPG_PRIV_KEY}" >> /tmp/deb-gpg-publish.private
+            echo "${DEB_GPG_PASSPHRASE}" >> /tmp/deb-gpg-publish.passphrase
+            sudo -E ./utils/publish-deb.sh init_freight_utils
+            sudo -E ./utils/publish-deb.sh init_gpg
+
+      - run:
+          name: DEB repo backup for debian
+          command: |
+            sudo -E ./utils/publish-deb.sh dists_backup
+
+      - run:
+          name: DEB repo refresh for debian
+          command: |
+            sudo -E ./utils/publish-deb.sh repo_rebuild
+            sudo -E ./utils/publish-deb.sh repo_ci_upload
+
+      - run:
+          name: DEB repo publish for debian
+          environment:
+            UPLOAD_TARGET_FILE: "${{ env.TAG_TYPE }}_${{ env.TAG_VERSION }}-0_{publish_repo_arch}.deb"
+          command: |
+            sudo -E ./utils/publish-deb.sh repo_upload
+            sudo -E ./utils/publish-deb.sh repo_publish
+
   echo:
     machine:
       image: ubuntu-2004:202101-01
     resource_class: arm.medium
-    environment:
-      - PASSWORD: ${{ secrets.PASSWORD }}
-      - TEST_VAR: "hello world"
+    parameters:
+      publish_repo_target:
+        type: string
     steps:
       - checkout
       - run:
           name: echo
           command: |
             echo "hello world"
+            echo << parameters.publish_repo_target >>
   build:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
@@ -211,7 +262,8 @@ workflows:
   publish-repo:
     when: << pipeline.parameters.publish_repo_trigger >>
     jobs:
-      - echo
+      - echo:
+          publish_repo_target: echo << parameters.publish_repo_target >>
   build-apisix-base:
     when:
       not: << pipeline.parameters.publish_repo_trigger >>
