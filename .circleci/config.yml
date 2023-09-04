@@ -4,9 +4,18 @@ version: 2.1
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 parameters:
-  publish_trigger:
+  publish_repo_trigger:
     type: boolean
     default: false
+  publish_repo_arch:
+    type: string
+    default: "arm64"
+  publish_repo_target:
+    type: string
+    default: "apisix"
+  publish_repo_version:
+    type: string
+    default: ""
 
 jobs:
   echo:
@@ -204,15 +213,18 @@ workflows:
       echo-run:
         type: boolean
         default: false
+    when: << pipeline.parameters.publish_repo_trigger >>
     jobs:
       - echo
   build-apisix-base:
+    when: << pipeline.parameters.publish_repo_trigger >> == false
     jobs:
       - build:
         filters:
           branches:
             only: master
   build-and-push-apisix-base-dev:
+    when: << pipeline.parameters.publish_repo_trigger >> == false
     triggers:
       - schedule:
           cron: "0 0 * * *"
@@ -228,6 +240,7 @@ workflows:
             - build-and-push-apisix-base-dev-arm
             - build-and-push-apisix-base-dev-x86
   build-mutil-platform-arm64-apckage:
+    when: << pipeline.parameters.publish_repo_trigger >> == false
     jobs:
       - build-arm64-package:
           name: debian-bullseye
