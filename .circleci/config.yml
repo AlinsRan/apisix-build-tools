@@ -83,9 +83,13 @@ jobs:
       - checkout
       - run:
           name: echo
+          environment:
+            PUBLISH_REPO_TARGET: << parameters.publish_repo_target >>
+            PUBLISH_REPO_TARGET2: << parameters.publish_repo_target >>_123
           command: |
             echo "hello world"
-            echo << parameters.publish_repo_target >>
+            echo ${PUBLISH_REPO_TARGET}
+            echo ${PUBLISH_REPO_TARGET2}
   build:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
