@@ -264,12 +264,12 @@ workflows:
     when: << pipeline.parameters.publish_repo_trigger >>
     jobs:
       - echo:
-          publish_repo_target: echo << parameters.publish_repo_target >>
+          publish_repo_target: echo << pipeline.parameters.publish_repo_target >>
       - publish-repo-deb:
           filters:
             branches:
               only: master
-          publish_repo_target: echo << parameters.publish_repo_target >>
+          publish_repo_target: echo << pipeline.parameters.publish_repo_target >>
   build-apisix-base:
     when:
       not: << pipeline.parameters.publish_repo_trigger >>
